@@ -32,6 +32,9 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 # Install Composer & Drush
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Manage db with adminer
+RUN wget "http://www.adminer.org/latest.php" -O /var/www/html/adminer.php
+
 # Install Drush, Drupal Console and pimp-my-log
 RUN HOME=/ /usr/local/bin/composer global require drush/drush:dev-master; \
   HOME=/ /usr/local/bin/composer global require drupal/console:dev-master; \
@@ -57,12 +60,8 @@ RUN /.composer/vendor/drush/drush/drush --version && ln -s /.composer/vendor/dru
 # Drupal new version, clean cache
 ADD https://www.drupal.org/project/drupal /tmp/latest.html
 
-# Retrieve drupal
-RUN rm -rf /var/www/html ; cd /var/www ; /.composer/vendor/drush/drush/drush -v dl drupal --default-major=8 --drupal-project-rename="html"
-RUN chmod a+w /var/www/html/sites/default ; mkdir /var/www/html/sites/default/files ; chown -R www-data:www-data /var/www/html/
-
-#Manage db with adminer
-RUN wget "http://www.adminer.org/latest.php" -O /var/www/html/adminer.php
+# Remove docroot
+RUN rm -rf /var/www/html
 
 RUN chmod 755 /start.sh /etc/apache2/foreground.sh
 WORKDIR /var/www/html
