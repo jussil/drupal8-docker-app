@@ -2,6 +2,7 @@ drupal8-docker-app
 ==================
 
 This repo contains a recipe for making a Docker container running Drupal8, using Linux, Apache, MySQL, Memcache and SSH.
+
 To use it, make sure you first [Install Docker](https://docs.docker.com/installation/).
 
 #Quick 3 step instructions:
@@ -9,13 +10,34 @@ To use it, make sure you first [Install Docker](https://docs.docker.com/installa
 ## 1 - Install docker:
 https://docs.docker.com/installation/
 
-## 2 - Get the image and run it using port 80:
+## 2 - Build image
 ```
-sudo docker run -i -t -p 80:80 ricardoamaro/drupal8
+cd /this/repository
+sudo docker build -t drupal8-stack .
 ```
-That's it!
-## 3 - Visit [http://localhost/](http://localhost/) in your browser
+
+## 3 - Clone Drupal 8
+```
+git clone -b 8.0.x --single-branch git://git.drupal.org/project/drupal.git
+```
+
+## 4 - Run it with code mounted from your machine
+```
+sudo docker run -d --name=drupal8 -p 80:80 -v "$PWD/drupal:/var/www/html" drupal8-stack
+```
+
+## 5 - Visit [http://localhost/](http://localhost/) in your browser
 using user/pass: admin/admin
+Or replace host with IP of your docker machine.
+
+## 6 - Development
+- Modify your files locally and changes will appear to running container
+- You can access the container to run shell commands like drush by entering the running container:
+```
+sudo docker exec -it drupal8 /bin/bash
+```
+
+## NOTE THAT STUFF BELOW MIGHT BE INACCURATE
 
 ### Credentials:
 * Drupal account-name=admin & account-pass=admin
@@ -31,12 +53,12 @@ sudo docker start -i -a (container ID)
 ### Example usage for testing:
 Using docker exec {ID} {COMMAND}, to run your own commands.
 ```
-~$ sudo docker run --name mydrupal8 -i -t -p 80:80 ricardoamaro/drupal8
+~$ sudo docker run --name drupal8 -i -t -p 80:80 ricardoamaro/drupal8
 
-~$ sudo docker exec mydrupal8  uptime
+~$ sudo docker exec drupal8  uptime
  10:02:59 up 16:41,  0 users,  load average: 1.17, 0.92, 0.76
 
-~$ sudo docker exec mydrupal8 drush status | head
+~$ sudo docker exec drupal8 drush status | head
  Drupal version         :  8.0.0-beta12
  Site URI               :  http://default 
  Database driver        :  mysql       
